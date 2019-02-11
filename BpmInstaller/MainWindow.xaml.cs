@@ -36,7 +36,7 @@ namespace BpmInstaller
             installer.NeedWorkInFS = (bool)devInFS.IsChecked;
             installer.StageChanged += SetLog;
             ShowHideClearInstall();
-        }
+		}
 
 
         private void SetLog(string log)
@@ -50,18 +50,17 @@ namespace BpmInstaller
         //Start
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+			if (!File.Exists(textBoxDistrPath.Text))
+			{
+				SetLog("Указанный дистрибутив не существует");
+				return;
+			}
 
-            if (!File.Exists(textBoxDistrPath.Text))
-            {
-                SetLog("Указанный дистрибутив не существует");
-                return;
-            }
+			SetInstaller(installer);
 
-            SetInstaller(installer);
-
-            Thread thread = new Thread(Work);
-            thread.Start();
-        }
+			Thread thread = new Thread(Work);
+			thread.Start();
+		}
 
         //browse folder
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -97,13 +96,9 @@ namespace BpmInstaller
         {
             installer.Name = textBoxName.Text;
             if (!textBoxPath.Text.EndsWith(@"\"))
-            {
-                textBoxPath.Text += @"\";
-            }
-            textBoxPath.Text += textBoxName.Text + @"\";
-            installer.WorkFolderPath = textBoxPath.Text;
+				textBoxPath.Text += @"\";
+            installer.WorkFolderPath = textBoxPath.Text + textBoxName.Text + @"\";
             installer.DistrPath = textBoxDistrPath.Text;
-            installer.DBBackupPath = textBoxBackupPath.Text;
             installer.Login = textBoxLogin.Text;
             installer.Password = textBoxPassword.Password;
             installer.RedisDBNumber = redisNumber.Text;
@@ -113,11 +108,7 @@ namespace BpmInstaller
             {
                 var filesInDistr = ZipFile.OpenRead(textBoxDistrPath.Text);
                 var bakFileNeme = filesInDistr.Entries.FirstOrDefault(fileName => fileName.FullName.Contains(".bak"));
-                //if (!textBoxPath.Text.EndsWith(@"\"))
-                //{
-                //    textBoxPath.Text += @"\";
-                //}
-                installer.DBBackupPath = textBoxPath.Text + @"db\" + bakFileNeme.Name;
+                installer.DBBackupPath = installer.WorkFolderPath + @"db\" + bakFileNeme.Name;
             }
             else
             {

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="BpmInstaller" Height="466" Width="307.563">
     <Grid>
-        <TextBox x:Name="textBoxPath" HorizontalAlignment="Left" Height="15" Margin="10,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="272" Text="C:\bpm\Work" FontSize="8"/>
+        <TextBox x:Name="textBoxPath" HorizontalAlignment="Left" Height="15" Margin="10,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="272" Text="C:\bpm\Work\" FontSize="8"/>
         <Label Content="Рабочая директория bpm" HorizontalAlignment="Left" Margin="10,57,0,0" VerticalAlignment="Top" Width="171"/>
         <Label Content="Название" HorizontalAlignment="Left" Margin="10,101,0,0" VerticalAlignment="Top" Width="100"/>
         <TextBox x:Name="textBoxName" HorizontalAlignment="Left" Height="23" Margin="10,132,0,0" TextWrapping="Wrap" Text="BpmCompanyDevVer7120" VerticalAlignment="Top" Width="272"/>

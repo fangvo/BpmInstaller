@@ -39,43 +39,44 @@ namespace BpmInstaller
 
         public void Start()
         {
+			try
+			{
+				Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет распаковка zip архива");
+				if (!Directory.Exists(WorkFolderPath))
+					ZipFile.ExtractToDirectory(DistrPath, WorkFolderPath);
+				Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет правка ConnectionStrings");
+				SetConnectionStrings(Name, Login, Password);
+				SetRedisConnectionStrings(RedisDBNumber);
+				XmlStringEditor.EditConnectionStrings(WorkFolderPath, ConnectionString_DB, ConnectionString_Redis);
+				Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет восстановление базы данных");
+				DataBase.Restore(Name, DBBackupPath, Login, Password);
 
-            try
-            {
-                Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет распаковка zip архива");
-                ZipFile.ExtractToDirectory(DistrPath, WorkFolderPath);
+				if (NeedWorkInFS)
+				{
+					Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет правка Web.config");
+					XmlStringEditor.SetWebConfig1(WorkFolderPath, NeedWorkInFS);
+					Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет правка WorkspaceConsole.config");
+					XmlStringEditor.EditWebConfToWorkInFS(WorkFolderPath, ConnectionString_DB);
+					Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет копирование файлов PrepareWorkspaceConsole");
+					StartBatToWorkInFS(WorkFolderPath);
+				}
 
-                Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет правка ConnectionStrings");
-                SetConnectionStrings(Name, Login, Password);
-                SetRedisConnectionStrings(RedisDBNumber);
-                XmlStringEditor.EditConnectionStrings(WorkFolderPath, ConnectionString_DB, ConnectionString_Redis);
-                Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет восстановление базы данных");
-                DataBase.RestoreDB(Name, DBBackupPath, Login, Password);
-                Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет настройка IIS");
-                SetIis(Name, WorkFolderPath, IisPort);
+				Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет настройка IIS");
+				IISHelper.SetIis(Name, WorkFolderPath, IisPort);
 
-                if (NeedWorkInFS)
-                {
-                    Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет правка Web.config");
-                    XmlStringEditor.SetWebConfig1(WorkFolderPath, NeedWorkInFS);
-                    Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет правка WorkspaceConsole.config");
-                    XmlStringEditor.EditWebConfToWorkInFS(WorkFolderPath, ConnectionString_DB);
-                    Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет копирование файлов PrepareWorkspaceConsole");
-                    StartBatToWorkInFS(WorkFolderPath);
-                }
-                Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Работа завершена");
-                OpenSite(IisPort);
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show("Что-то пошло не так. \r\nДанные об ошибке сохранены в файле error.log директории программы.");
-                File.WriteAllText("error.log", ex.Message);
-            }
-        }
+				Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Работа завершена");
+				OpenSite(IisPort);
+			}
+			catch (Exception ex)
+			{
+				System.Windows.MessageBox.Show("Что-то пошло не так. \r\nДанные об ошибке сохранены в файле error.log директории программы.");
+				File.WriteAllText("error.log", $"{ex.Message}\r\n{ex.StackTrace}");
+			}
+		}
 
 
 
-        public void SetConnectionStrings(string dbName, string login, string password, string server = "", bool isDataSourceOnLocalhost=true)
+		public void SetConnectionStrings(string dbName, string login, string password, string server = "", bool isDataSourceOnLocalhost=true)
         {
             if(isDataSourceOnLocalhost)
                 ConnectionString_DB = "Data Source=" + Environment.MachineName + "; ";
@@ -104,18 +105,9 @@ namespace BpmInstaller
 
         
 
-        private void SetIis(string name, string workFolder, string port)
-        {
-            ServerManager iisManager = new ServerManager();
-            iisManager.ApplicationPools.Add(name);
-            Site site = iisManager.Sites.Add(name, "http", "*:" + port + ":", workFolder);
-            site.ApplicationDefaults.ApplicationPoolName = name;
-            string appPath = workFolder + @"Terrasoft.WebApp\";
-            Application application = site.Applications.Add("/0", appPath);
-            iisManager.CommitChanges();
-        }
 
-        private void OpenSite(string port, string host = "http://127.0.0.1")
+
+		private void OpenSite(string port, string host = "http://127.0.0.1")
         {
             string site = host + ":" + port;
             System.Diagnostics.Process.Start(site);
@@ -140,5 +132,25 @@ namespace BpmInstaller
             proc.Start();
         }
 
-    }
+		public void MoveDirectory(string source, string target)
+		{
+			var sourcePath = source.TrimEnd('\\', ' ');
+			var targetPath = target.TrimEnd('\\', ' ');
+			var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+								 .GroupBy(s => Path.GetDirectoryName(s));
+			foreach (var folder in files)
+			{
+				var targetFolder = folder.Key.Replace(sourcePath, targetPath);
+				Directory.CreateDirectory(targetFolder);
+				foreach (var file in folder)
+				{
+					var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+					if (File.Exists(targetFile)) File.Delete(targetFile);
+					File.Move(file, targetFile);
+				}
+			}
+			Directory.Delete(source, true);
+		}
+
+	}
 }
