@@ -36,6 +36,7 @@ namespace BpmInstaller
         public string RedisDBNumber { get; set; }
         public string IisPort { get; set; }
         public bool NeedWorkInFS { get; set; }
+        public bool NeedRestoreBD { get; set; }
 
         public void Start()
         {
@@ -48,9 +49,12 @@ namespace BpmInstaller
 				SetConnectionStrings(Name, Login, Password);
 				SetRedisConnectionStrings(RedisDBNumber);
 				XmlStringEditor.EditConnectionStrings(WorkFolderPath, ConnectionString_DB, ConnectionString_Redis);
-				Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет восстановление базы данных");
-				DataBase.Restore(Name, DBBackupPath, Login, Password);
-
+                if (NeedRestoreBD)
+                {
+                    Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет восстановление базы данных");
+                    DataBase.Restore(Name, DBBackupPath, Login, Password);
+                }
+			
 				if (NeedWorkInFS)
 				{
 					Dispatcher.CurrentDispatcher?.Invoke(StageChanged, "Идет правка Web.config");

@@ -34,6 +34,7 @@ namespace BpmInstaller
             labelLog.Content = string.Empty;
             installer = new Installer();
             installer.NeedWorkInFS = (bool)devInFS.IsChecked;
+            installer.NeedWorkInFS = (bool)isNeedIntallBD.IsChecked;
             installer.StageChanged += SetLog;
             ShowHideClearInstall();
 		}
@@ -163,5 +164,22 @@ namespace BpmInstaller
             installer.NeedWorkInFS = (bool)devInFS.IsChecked;
         }
 
+        private void IsNeedIntallBD_Click(object sender, RoutedEventArgs e)
+        {
+            if ((bool)isNeedIntallBD.IsChecked)
+            {
+                installer.NeedRestoreBD = true;
+                bdGrid.Visibility = Visibility.Visible;
+                bdGrid.Height = 65;
+                System.Windows.Application.Current.MainWindow.Height += 65;
+            }
+            if (!(bool)isNeedIntallBD.IsChecked)
+            {
+                installer.NeedRestoreBD = true;
+                bdGrid.Visibility = Visibility.Hidden;
+                bdGrid.Height = 0;
+                System.Windows.Application.Current.MainWindow.Height -= 65;
+            }
+        }
     }
 }

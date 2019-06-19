@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BpmInstaller"
         mc:Ignorable="d"
-        Title="BpmInstaller" Height="466" Width="307.563">
+        ResizeMode="NoResize"
+        Title="BpmInstaller" Height="479.31" Width="310">
     <Grid>
         <TextBox x:Name="textBoxPath" HorizontalAlignment="Left" Height="15" Margin="10,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="272" Text="C:\bpm\Work\" FontSize="8"/>
         <Label Content="Рабочая директория bpm" HorizontalAlignment="Left" Margin="10,57,0,0" VerticalAlignment="Top" Width="171"/>
@@ -13,7 +14,7 @@
         <TextBox x:Name="textBoxName" HorizontalAlignment="Left" Height="23" Margin="10,132,0,0" TextWrapping="Wrap" Text="BpmCompanyDevVer7120" VerticalAlignment="Top" Width="272"/>
         <Button Content="Обзор" HorizontalAlignment="Left" Margin="207,57,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_1"/>
         <CheckBox x:Name="devInFS" Content="Разработка в файловой системе" HorizontalAlignment="Left" Margin="10,253,0,0" VerticalAlignment="Top" Height="20" Width="272" Click="devInFS_Click"/>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="106,404,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+
         <Label Content="Логин MsSql" HorizontalAlignment="Left" Margin="10,161,0,0" VerticalAlignment="Top"/>
         <Label Content="Пароль MsSql" HorizontalAlignment="Left" Margin="10,192,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="textBoxLogin" HorizontalAlignment="Left" Height="23" Margin="106,164,0,0" TextWrapping="Wrap" Text="sa" VerticalAlignment="Top" Width="176"/>
@@ -21,16 +22,23 @@
         <Label Content="Путь к дистрибутиву" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="textBoxDistrPath" HorizontalAlignment="Left" Height="14" Margin="10,41,0,0" TextWrapping="Wrap" Text="C:\" VerticalAlignment="Top" Width="272" FontSize="8"/>
         <Button x:Name="buttonChoseDist" Content="Обзор" HorizontalAlignment="Left" Margin="207,13,0,0" VerticalAlignment="Top" Width="75" Click="buttonChoseDist_Click"/>
-        <ProgressBar x:Name="progressBar" HorizontalAlignment="Left" Height="20" Margin="10,366,0,0" VerticalAlignment="Top" Width="272"/>
         <TextBox x:Name="redisNumber" HorizontalAlignment="Left" Height="23" Margin="246,103,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="35" TextAlignment="Center"/>
         <Label Content="Номер Redis" HorizontalAlignment="Left" Margin="156,100,0,0" VerticalAlignment="Top" Width="85"/>
-        <Label x:Name="labelBackupPath" Content="Путь к backup БД (*.bak)" HorizontalAlignment="Left" Margin="10,287,0,0" VerticalAlignment="Top" Width="147"/>
-        <Button x:Name="buttonBackupBrowse" Content="Обзор" HorizontalAlignment="Left" Margin="207,290,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
-        <TextBox x:Name="textBoxBackupPath" HorizontalAlignment="Left" Height="15" Margin="10,313,0,0" TextWrapping="Wrap" Text="C:\" VerticalAlignment="Top" Width="271" FontSize="8"/>
-        <CheckBox x:Name="clearInstall" Content="Использовать backup БД из дистрибутива" HorizontalAlignment="Left" Margin="10,275,0,0" VerticalAlignment="Top" Width="271" Height="15" IsChecked="True" Click="clearInstall_Click"/>
+        <CheckBox x:Name="isNeedIntallBD" Content="Восстанавливать БД" Margin="10,273,0,0" Height="15" IsChecked="True" Click="IsNeedIntallBD_Click" VerticalAlignment="Top" HorizontalAlignment="Left" Width="272"/>
+        <Grid x:Name="bdGrid" Margin="0,293,0,0" HorizontalAlignment="Left" Width="304" Height="70" VerticalAlignment="Top">
+            <CheckBox x:Name="clearInstall" Margin="10,0,0,0" Content="Использовать backup БД из дистрибутива" HorizontalAlignment="Left" VerticalAlignment="Top" Height="15" IsChecked="True" Click="clearInstall_Click"/>
+            <Label x:Name="labelBackupPath" Content="Путь к backup БД (*.bak)" HorizontalAlignment="Left" Margin="10,13,0,0" VerticalAlignment="Top" Width="150"/>
+            <Button x:Name="buttonBackupBrowse" Content="Обзор" HorizontalAlignment="Left" Margin="207,16,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_2"/>
+            <TextBox x:Name="textBoxBackupPath" HorizontalAlignment="Left" Height="15" Margin="10,40,0,0" TextWrapping="Wrap" Text="C:\" VerticalAlignment="Top" FontSize="8" Width="272"/>
+        </Grid>
         <Label Content="Порт веб сайта в IIS" HorizontalAlignment="Left" Margin="10,224,0,0" VerticalAlignment="Top" Width="123"/>
         <TextBox x:Name="textBoxIisPort" HorizontalAlignment="Left" Height="23" Margin="133,226,0,0" TextWrapping="Wrap" Text="8000" VerticalAlignment="Top" Width="36"/>
-        <Label x:Name="labelLog" Content="-" HorizontalAlignment="Left" Margin="13,336,0,0" VerticalAlignment="Top" Width="268"/>
+        <Grid Height="90" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="304">
+            <Label x:Name="labelLog" Content="-" HorizontalAlignment="Left" Margin="14,0,0,0" Width="268" Height="26" VerticalAlignment="Top"/>
+            <ProgressBar x:Name="progressBar" Margin="10,31,0,0" Height="26" HorizontalAlignment="Left" Width="272" VerticalAlignment="Top"/>
+            <Button Content="Start" HorizontalAlignment="Left" Margin="113,62,0,0" Width="75" Click="Button_Click" Height="20" VerticalAlignment="Top"/>
+        </Grid>
+
 
     </Grid>
 </Window>
