@@ -24,10 +24,21 @@ namespace BpmInstaller
 			Database db = smoServer.Databases[dbName];
 			return db == null;
 		}
-        public static void Restore(string dbName, string backupPath, string login, string password)
+        public static void Restore(string serverName, string dbName, string backupPath, string login, string password)
         {
-            ServerConnection serverConnection = new ServerConnection(Environment.MachineName, login, password);
-            Server smoServer = new Server(serverConnection);
+            ServerConnection serverConnection = new ServerConnection(serverName, login, password);
+            RestoreDB(serverConnection, dbName, backupPath);
+        }
+
+        public static void Restore(string serverName, string dbName, string backupPath)
+        {
+            ServerConnection serverConnection = new ServerConnection(serverName);
+            RestoreDB(serverConnection, dbName, backupPath);
+        }
+
+        private static void RestoreDB(ServerConnection connection, string dbName, string backupPath)
+        {
+            Server smoServer = new Server(connection);
             Database db = smoServer.Databases[dbName];
 
             if (db == null)
@@ -37,22 +48,22 @@ namespace BpmInstaller
                 db.Refresh();
             }
 
-			Restore restore = new Restore();
+            Restore restore = new Restore();
             BackupDeviceItem deviceItem = new BackupDeviceItem(backupPath, DeviceType.File);
             restore.Devices.Add(deviceItem);
             restore.Database = dbName;
             restore.Action = RestoreActionType.Database;
             restore.ReplaceDatabase = true;
             restore.NoRecovery = false;
-			var mdfPath = $"{smoServer.DefaultFile}{dbName}.mdf";
-			var ldfPath = $"{smoServer.DefaultFile}{dbName}_log.ldf";
+            var mdfPath = $"{smoServer.DefaultFile}{dbName}.mdf";
+            var ldfPath = $"{smoServer.DefaultFile}{dbName}_log.ldf";
 
-			System.Data.DataTable logicalRestoreFiles = restore.ReadFileList(smoServer);
-			restore.RelocateFiles.Add(new RelocateFile(logicalRestoreFiles.Rows[0][0].ToString(), mdfPath));
-			restore.RelocateFiles.Add(new RelocateFile(logicalRestoreFiles.Rows[1][0].ToString(), ldfPath));
+            System.Data.DataTable logicalRestoreFiles = restore.ReadFileList(smoServer);
+            restore.RelocateFiles.Add(new RelocateFile(logicalRestoreFiles.Rows[0][0].ToString(), mdfPath));
+            restore.RelocateFiles.Add(new RelocateFile(logicalRestoreFiles.Rows[1][0].ToString(), ldfPath));
 
-			smoServer.KillAllProcesses(dbName);
-			restore.SqlRestore(smoServer);
+            smoServer.KillAllProcesses(dbName);
+            restore.SqlRestore(smoServer);
 
             db = smoServer.Databases[dbName];
             db.SetOnline();

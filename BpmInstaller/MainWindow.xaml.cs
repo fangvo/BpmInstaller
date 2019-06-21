@@ -34,10 +34,11 @@ namespace BpmInstaller
             labelLog.Content = string.Empty;
             installer = new Installer();
             installer.NeedWorkInFS = (bool)devInFS.IsChecked;
-            installer.NeedWorkInFS = (bool)isNeedIntallBD.IsChecked;
+            installer.NeedRestoreBD = (bool)isNeedIntallBD.IsChecked;
             installer.StageChanged += SetLog;
+            serverName.Text = Environment.MachineName;
             ShowHideClearInstall();
-		}
+        }
 
 
         private void SetLog(string log)
@@ -51,17 +52,17 @@ namespace BpmInstaller
         //Start
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-			if (!File.Exists(textBoxDistrPath.Text))
-			{
-				SetLog("Указанный дистрибутив не существует");
-				return;
-			}
+            if (!File.Exists(textBoxDistrPath.Text))
+            {
+                SetLog("Указанный дистрибутив не существует");
+                return;
+            }
 
-			SetInstaller(installer);
+            SetInstaller(installer);
 
-			Thread thread = new Thread(Work);
-			thread.Start();
-		}
+            Thread thread = new Thread(Work);
+            thread.Start();
+        }
 
         //browse folder
         private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -97,13 +98,14 @@ namespace BpmInstaller
         {
             installer.Name = textBoxName.Text;
             if (!textBoxPath.Text.EndsWith(@"\"))
-				textBoxPath.Text += @"\";
+                textBoxPath.Text += @"\";
             installer.WorkFolderPath = textBoxPath.Text + textBoxName.Text + @"\";
             installer.DistrPath = textBoxDistrPath.Text;
             installer.Login = textBoxLogin.Text;
             installer.Password = textBoxPassword.Password;
             installer.RedisDBNumber = redisNumber.Text;
             installer.IisPort = textBoxIisPort.Text;
+            installer.ServerName = serverName.Text;
 
             if ((bool)clearInstall.IsChecked)
             {
@@ -141,16 +143,14 @@ namespace BpmInstaller
         {
             if ((bool)clearInstall.IsChecked)
             {
-                textBoxBackupPath.Visibility = Visibility.Hidden;
-                labelBackupPath.Visibility = Visibility.Hidden;
-                buttonBackupBrowse.Visibility = Visibility.Hidden;
+                bdPathSettnigsGrid.Visibility = Visibility.Hidden;
+                bdPathSettnigsGrid.Height = 0;
             }
             if (!(bool)clearInstall.IsChecked)
             {
-                textBoxBackupPath.Visibility = Visibility.Visible;
-                labelBackupPath.Visibility = Visibility.Visible;
-                buttonBackupBrowse.Visibility = Visibility.Visible;
-            } 
+                bdPathSettnigsGrid.Visibility = Visibility.Visible;
+                bdPathSettnigsGrid.Height = double.NaN;
+            }
         }
 
         private void clearInstall_Click(object sender, RoutedEventArgs e)
@@ -166,20 +166,36 @@ namespace BpmInstaller
 
         private void IsNeedIntallBD_Click(object sender, RoutedEventArgs e)
         {
-            if ((bool)isNeedIntallBD.IsChecked)
+            var isChecked = (bool)isNeedIntallBD.IsChecked;
+            if (isChecked)
             {
-                installer.NeedRestoreBD = true;
-                bdGrid.Visibility = Visibility.Visible;
-                bdGrid.Height = 65;
-                System.Windows.Application.Current.MainWindow.Height += 65;
+                bdSettnigsGrid.Visibility = Visibility.Visible;
+                bdSettnigsGrid.Height = double.NaN;
             }
-            if (!(bool)isNeedIntallBD.IsChecked)
+            if (!isChecked)
             {
-                installer.NeedRestoreBD = true;
-                bdGrid.Visibility = Visibility.Hidden;
-                bdGrid.Height = 0;
-                System.Windows.Application.Current.MainWindow.Height -= 65;
+                bdSettnigsGrid.Visibility = Visibility.Hidden;
+                bdSettnigsGrid.Height = 0;
             }
+
+            installer.NeedRestoreBD = isChecked;
+        }
+
+        private void IsWindowsAuthorization_Click(object sender, RoutedEventArgs e)
+        {
+            var isChecked = (bool)isWindowsAuthorization.IsChecked;
+            if (isChecked)
+            {
+                bdLoginSettnigsGrid.Visibility = Visibility.Hidden;
+                bdLoginSettnigsGrid.Height = 0;
+            }
+            if (!isChecked)
+            {
+                bdLoginSettnigsGrid.Visibility = Visibility.Visible;
+                bdLoginSettnigsGrid.Height = double.NaN;
+
+            }
+            installer.UseWindowsAuthorization = isChecked;
         }
     }
 }
